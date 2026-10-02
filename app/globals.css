@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+body {
+  font-family: var(--font-mono);
+  background-color: #000000;
+  color: #ffffff;
+}
+
+/* Custom black and white scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666666;
+}
+
+/* Code block line numbers */
+.code-line-number {
+  user-select: none;
+  color: #555555;
+  text-align: right;
+  padding-right: 1rem;
+}
