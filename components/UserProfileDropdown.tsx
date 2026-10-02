@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import {
-  Palette,
   Sliders,
   Plus,
   LogOut,
-  ChevronRight,
-  Check,
   LogIn,
 } from 'lucide-react';
 import { useAuth } from '@/src/context/AuthContext.tsx';
@@ -20,6 +18,8 @@ interface UserProfileDropdownProps {
   anchorPosition?: 'bottom-left' | 'bottom-right';
 }
 
+const emptySubscribe = () => () => {};
+
 export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   isOpen,
   onClose,
@@ -28,11 +28,11 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
 }) => {
   const { user, signInWithGoogle, signOut, signingIn } = useAuth();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [themeSubmenuOpen, setThemeSubmenuOpen] = React.useState(false);
-  const [activeTheme, setActiveTheme] = React.useState<'dark' | 'contrast' | 'light'>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem('ilovefree_theme') as 'dark' | 'contrast' | 'light') || 'dark';
-  });
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   // Close on outside click or Escape key
   useEffect(() => {
@@ -56,35 +56,27 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isClient) return null;
 
   const displayName = user ? (user.displayName || user.email?.split('@')[0] || 'User') : 'Guest User';
   const email = user?.email || 'Guest Account';
   const initial = displayName.charAt(0).toUpperCase();
 
-  const handleThemeChange = (theme: 'dark' | 'contrast' | 'light') => {
-    setActiveTheme(theme);
-    setThemeSubmenuOpen(false);
-    try {
-      localStorage.setItem('ilovefree_theme', theme);
-    } catch {}
-    if (theme === 'light') {
-      document.documentElement.classList.remove('dark');
-    } else {
-      document.documentElement.classList.add('dark');
-    }
-  };
-
-  return (
+  const dropdownContent = (
     <>
-      {/* Invisible fixed backdrop overlay ensuring clicks outside close cleanly without container restriction */}
-      <div className="fixed inset-0 z-[9990] cursor-default" onClick={onClose} />
+      {/* Invisible fixed backdrop overlay ensuring clicks outside close cleanly */}
+      <div
+        className="fixed inset-0 z-[99990] cursor-default bg-transparent"
+        onClick={onClose}
+      />
 
-      {/* Floating Dropdown Panel on top of all other divs using fixed positioning */}
+      {/* Floating Dropdown Panel rendered directly to document.body via Portal to prevent any parent overflow or scrollbar triggering */}
       <div
         ref={dropdownRef}
-        className={`fixed z-[99999] w-64 bg-[#18181c] border border-[#2a2a32] rounded-2xl shadow-2xl py-2 px-1 text-white font-sans text-xs select-none animate-in fade-in zoom-in-95 duration-100 ${
-          anchorPosition === 'bottom-right' ? 'top-12 right-3' : 'top-16 left-3'
+        className={`fixed z-[99999] w-64 max-w-[calc(100vw-24px)] bg-[#18181c] border border-[#2a2a32] rounded-2xl shadow-2xl py-2 px-1 text-white font-sans text-xs select-none animate-in fade-in zoom-in-95 duration-100 ${
+          anchorPosition === 'bottom-right'
+            ? 'top-12 right-3'
+            : 'top-16 left-3 sm:left-4'
         }`}
       >
         {/* 1. User Header Section */}
@@ -131,61 +123,21 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
           )}
         </div>
 
-        <div className="border-t border-[#26262e] my-1" />
-
-        {/* 2. Preferences Menu */}
-        <div className="space-y-0.5 px-1">
-          {/* Change theme with submenu */}
-          <div className="relative">
+        {/* 2. Preferences Menu - Hidden on mobile screen since Settings is desktop only */}
+        <div className="hidden sm:block">
+          <div className="border-t border-[#26262e] my-1" />
+          <div className="space-y-0.5 px-1">
             <button
-              onClick={() => setThemeSubmenuOpen(!themeSubmenuOpen)}
-              className="w-full h-8 px-2.5 rounded-lg flex items-center justify-between text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-xs"
+              onClick={() => {
+                onClose();
+                onOpenSettings();
+              }}
+              className="w-full h-8 px-2.5 rounded-lg flex items-center gap-2.5 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-xs"
             >
-              <div className="flex items-center gap-2.5">
-                <Palette className="w-4 h-4 text-neutral-400" />
-                <span>Change theme</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-neutral-500" />
+              <Sliders className="w-4 h-4 text-neutral-400" />
+              <span>Settings</span>
             </button>
-
-            {themeSubmenuOpen && (
-              <div className="absolute left-full top-0 ml-1 w-40 bg-[#1e1e24] border border-[#2e2e38] rounded-xl shadow-2xl py-1 z-[10000] text-xs">
-                <button
-                  onClick={() => handleThemeChange('dark')}
-                  className="w-full px-3 py-1.5 text-left text-neutral-300 hover:text-white hover:bg-white/10 flex items-center justify-between cursor-pointer"
-                >
-                  <span>Dark Modern</span>
-                  {activeTheme === 'dark' && <Check className="w-3 h-3 text-white" />}
-                </button>
-                <button
-                  onClick={() => handleThemeChange('contrast')}
-                  className="w-full px-3 py-1.5 text-left text-neutral-300 hover:text-white hover:bg-white/10 flex items-center justify-between cursor-pointer"
-                >
-                  <span>High Contrast</span>
-                  {activeTheme === 'contrast' && <Check className="w-3 h-3 text-white" />}
-                </button>
-                <button
-                  onClick={() => handleThemeChange('light')}
-                  className="w-full px-3 py-1.5 text-left text-neutral-300 hover:text-white hover:bg-white/10 flex items-center justify-between cursor-pointer"
-                >
-                  <span>Light</span>
-                  {activeTheme === 'light' && <Check className="w-3 h-3 text-white" />}
-                </button>
-              </div>
-            )}
           </div>
-
-          {/* Settings button */}
-          <button
-            onClick={() => {
-              onClose();
-              onOpenSettings();
-            }}
-            className="w-full h-8 px-2.5 rounded-lg flex items-center gap-2.5 text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-xs"
-          >
-            <Sliders className="w-4 h-4 text-neutral-400" />
-            <span>Settings</span>
-          </button>
         </div>
 
         <div className="border-t border-[#26262e] my-1" />
@@ -233,4 +185,6 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
       </div>
     </>
   );
+
+  return createPortal(dropdownContent, document.body);
 };

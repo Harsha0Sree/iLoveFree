@@ -189,10 +189,20 @@ export default function HomePage() {
     setCheckpoints(getSavedCheckpoints());
   }, []);
 
-  // Fetch projects from PostgreSQL database
+  // Fetch projects from PostgreSQL database (or per-tab sessionStorage for guest users)
   const fetchProjects = useCallback(async () => {
     if (!token) {
-      setDbProjects([]);
+      try {
+        const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+        if (stored) {
+          const parsed: SavedProject[] = JSON.parse(stored);
+          setDbProjects(parsed);
+        } else {
+          setDbProjects([]);
+        }
+      } catch {
+        setDbProjects([]);
+      }
       return;
     }
     setLoadingProjects(true);
@@ -217,7 +227,18 @@ export default function HomePage() {
     let isMounted = true;
     if (!token) {
       Promise.resolve().then(() => {
-        if (isMounted) setDbProjects([]);
+        if (isMounted) {
+          try {
+            const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+            if (stored) {
+              setDbProjects(JSON.parse(stored));
+            } else {
+              setDbProjects([]);
+            }
+          } catch {
+            setDbProjects([]);
+          }
+        }
       });
       return () => {
         isMounted = false;
@@ -484,7 +505,7 @@ export default function HomePage() {
       setViewMode('editor');
       setActiveActivityTab('explorer');
 
-      // If user is logged in, optionally save automatically to database
+      // If user is logged in, save to database; if guest, save to per-tab sessionStorage
       if (token && content.trim()) {
         const parsed = parseProjectFromText(content, appSettings.parserOptions);
         try {
@@ -513,6 +534,35 @@ export default function HomePage() {
           }
         } catch (err) {
           console.error('Failed to auto-save uploaded project to database:', err);
+        }
+      } else if (!token && content.trim()) {
+        const parsed = parseProjectFromText(content, appSettings.parserOptions);
+        const guestProject: SavedProject = {
+          id: Date.now(),
+          userId: 'guest',
+          title: fileName || 'Uploaded Project',
+          rawTranscript: content,
+          parsedFiles: parsed.files,
+          stats: {
+            fileCount: Object.keys(parsed.files).length,
+            totalBytes: parsed.stats.totalBytes,
+            totalBlocks: parsed.stats.totalCodeBlocks,
+            lineCount: parsed.stats.totalLines,
+          },
+          isStarred: 0,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setCurrentProject(guestProject);
+        setActiveProjectTitle(guestProject.title);
+        try {
+          const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+          const existing: SavedProject[] = stored ? JSON.parse(stored) : [];
+          const updated = [guestProject, ...existing.filter((p) => p.id !== guestProject.id)];
+          sessionStorage.setItem('ilovefree_guest_projects', JSON.stringify(updated));
+          setDbProjects(updated);
+        } catch (err) {
+          console.error('Failed to save guest project to sessionStorage:', err);
         }
       }
     };
@@ -592,6 +642,17 @@ export default function HomePage() {
       } catch (err) {
         console.error('Failed to save project:', err);
       }
+    } else {
+      // Guest User: Save to sessionStorage (automatically wiped when tab closes)
+      try {
+        const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+        const existing: SavedProject[] = stored ? JSON.parse(stored) : [];
+        const updated = [localProject, ...existing.filter((p) => p.id !== localProject.id)];
+        sessionStorage.setItem('ilovefree_guest_projects', JSON.stringify(updated));
+        setDbProjects(updated);
+      } catch (err) {
+        console.error('Failed to save guest project to sessionStorage:', err);
+      }
     }
     if (isMobileScreen) {
       setMobileWorkspaceNoticeOpen(true);
@@ -636,9 +697,23 @@ export default function HomePage() {
     }
   };
 
-  // Delete project from database
+  // Delete project from database or guest sessionStorage
   const handleDeleteDbProject = async (id: number) => {
-    if (!token) return;
+    if (!token) {
+      try {
+        const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+        const existing: SavedProject[] = stored ? JSON.parse(stored) : [];
+        const updated = existing.filter((p) => p.id !== id);
+        sessionStorage.setItem('ilovefree_guest_projects', JSON.stringify(updated));
+        setDbProjects(updated);
+        if (currentProject?.id === id) {
+          handleClear();
+        }
+      } catch (err) {
+        console.error('Failed to delete guest project:', err);
+      }
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${id}`, {
         method: 'DELETE',
@@ -659,8 +734,19 @@ export default function HomePage() {
 
   // Toggle star
   const handleToggleStar = async (id: number, currentStar: number) => {
-    if (!token) return;
     const newStar = currentStar === 1 ? 0 : 1;
+    if (!token) {
+      try {
+        const stored = typeof window !== 'undefined' ? sessionStorage.getItem('ilovefree_guest_projects') : null;
+        const existing: SavedProject[] = stored ? JSON.parse(stored) : [];
+        const updated = existing.map((p) => (p.id === id ? { ...p, isStarred: newStar } : p));
+        sessionStorage.setItem('ilovefree_guest_projects', JSON.stringify(updated));
+        setDbProjects(updated);
+      } catch (err) {
+        console.error('Failed to toggle star for guest project:', err);
+      }
+      return;
+    }
     try {
       const res = await fetch(`/api/projects/${id}`, {
         method: 'PUT',
@@ -680,7 +766,6 @@ export default function HomePage() {
 
   // Duplicate project
   const handleDuplicateProject = async (project: SavedProject) => {
-    if (!token) return;
     await handleCreateNewProject(`${project.title} (Copy)`, project.rawTranscript);
   };
 
@@ -1128,9 +1213,9 @@ my-app/
         onSelectResult={(filePath) => handleSelectFile(filePath)}
       />
 
-      {/* Preferences & Settings Modal */}
+      {/* Preferences & Settings Modal - Desktop Only */}
       <SettingsModal
-        isOpen={isSettingsOpen}
+        isOpen={isSettingsOpen && !isMobileScreen}
         onClose={() => setIsSettingsOpen(false)}
         settings={appSettings}
         onUpdateSettings={setAppSettings}

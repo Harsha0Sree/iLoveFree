@@ -576,7 +576,7 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                 <span>iLoveFree</span>
               </button>
             )}
-            {onOpenSettings && (
+            {!isMobile && onOpenSettings && (
               <button
                 onClick={onOpenSettings}
                 className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
@@ -593,8 +593,8 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
       {/* 2. Main Content Canvas */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#141414] overflow-hidden">
         {/* Top Header Row (border-none to eliminate separating line) */}
-        <header className="h-14 border-none bg-[#141414] px-4 sm:px-6 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <header className="h-14 border-none bg-[#141414] px-3 sm:px-6 flex items-center justify-between gap-2 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* Mobile Hamburger menu trigger */}
             <button
               onClick={() => setMobileNavOpen(true)}
@@ -604,20 +604,20 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
               <Menu className="w-4 h-4" />
             </button>
 
-            <h1 className="text-sm sm:text-base font-semibold text-white tracking-tight capitalize truncate max-w-xs sm:max-w-sm">
+            <h1 className="text-xs sm:text-base font-semibold text-white tracking-tight capitalize truncate max-w-28 sm:max-w-sm">
               {pageTitle}
             </h1>
-            <span className="text-xs text-neutral-500 font-normal shrink-0">
+            <span className="text-[11px] sm:text-xs text-neutral-500 font-normal shrink-0">
               ({filteredProjects.length})
             </span>
           </div>
 
           {/* Right Action Buttons */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Upload Folder Button */}
             <button
               onClick={() => folderInputRef.current?.click()}
-              className="h-8 px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-8 px-2 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Upload entire project folder from disk"
             >
               <FolderUp className="w-3.5 h-3.5 shrink-0" />
@@ -630,7 +630,7 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                 setTargetWorkspaceForNewProject(selectedWorkspaceId || 'default');
                 setIsCreatingModal(true);
               }}
-              className="h-8 px-3 sm:px-3.5 bg-white text-black hover:bg-neutral-200 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              className="h-8 px-2.5 sm:px-3.5 bg-white text-black hover:bg-neutral-200 rounded-md text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5 shrink-0" />
               <span>New Project</span>
@@ -645,28 +645,28 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                     onOpenEditorDirectly();
                   }
                 }}
-                className="h-8 px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="hidden sm:flex h-8 px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white items-center gap-1.5 transition-colors cursor-pointer"
                 title={isMobile ? "Workspace (Desktop Only)" : "Go to Code Workspace"}
               >
                 <Code2 className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden sm:inline">Workspace</span>
+                <span>Workspace</span>
               </button>
             )}
           </div>
         </header>
 
         {/* Sub-nav row */}
-        <div className="h-10 border-b border-[#1f1f1f] px-6 flex items-center justify-between text-xs shrink-0 bg-[#141414]">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-neutral-400 font-medium">
+        <div className="h-9 sm:h-10 border-b border-[#1f1f1f] px-3 sm:px-6 flex items-center justify-between text-xs shrink-0 bg-[#141414]">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[11px] sm:text-xs text-neutral-400 font-medium truncate">
               {navSection === 'workspace'
-                ? `Filtered by workspace: ${activeWorkspaceObj?.name}`
+                ? `Workspace: ${activeWorkspaceObj?.name}`
                 : 'Recently viewed'}
             </span>
           </div>
 
-          <div className="text-[11px] text-neutral-500">
-            Click any project to open in editor
+          <div className="hidden sm:block text-[11px] text-neutral-500 shrink-0">
+            Click any project to open
           </div>
         </div>
 

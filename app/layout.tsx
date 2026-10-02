@@ -11,6 +11,11 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'iLoveFree - Deterministic Project Extractor & Developer Workbench',
   description: 'Deterministic parser and ZIP packager for markdown transcripts and multi-file code exports with file tree auditing and zero LLM hallucination.',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'iLoveFree - Deterministic Project Extractor & Developer Workbench',
     description: 'Deterministic parser and ZIP packager for markdown transcripts and multi-file code exports with file tree auditing and zero LLM hallucination.',

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Minimalist Pure White Rounded Background -->
+  <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+  <!-- Minimalist Black Terminal / Code Extraction Icon -->
+  <path d="M19 20L31 32L19 44" stroke="#000000" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="35" y1="44" x2="46" y2="44" stroke="#000000" stroke-width="5.5" stroke-linecap="round"/>
+</svg>
