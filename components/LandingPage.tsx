@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/src/context/AuthContext.tsx';
 import {
   ArrowRight,
@@ -25,6 +26,7 @@ import {
   RotateCcw,
   Sliders,
   ChevronDown,
+  Play,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -37,6 +39,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onSignInSuccess,
 }) => {
   const { user, signInWithGoogle, signingIn } = useAuth();
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const handleSignIn = async () => {
     if (user) {
@@ -58,58 +61,58 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   return (
     <div className="min-h-screen w-full bg-[#09090b] text-neutral-200 font-mono flex flex-col selection:bg-white selection:text-black overflow-x-hidden">
-      {/* 1. Spacious Nav Bar Optimized for Both Desktop and Mobile (>350px) */}
-      <header className="h-14 sm:h-20 lg:h-24 px-3 sm:px-10 lg:px-16 bg-[#09090b]/90 backdrop-blur-md flex items-center justify-between sticky top-0 z-50 shrink-0 border-b border-[#18181b] w-full">
+      {/* 1. Spacious Nav Bar with Centered Section Navigation */}
+      <header className="h-14 sm:h-20 lg:h-24 px-3 sm:px-10 lg:px-16 bg-[#09090b]/90 backdrop-blur-md flex items-center justify-between sticky top-0 z-50 shrink-0 border-b border-[#18181b] w-full relative">
         {/* Left: Clean iLoveFree Typography */}
-        <div className="flex items-center gap-4 sm:gap-8 min-w-0">
+        <div className="flex items-center min-w-0 z-10">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-base sm:text-lg font-bold text-white tracking-tight hover:opacity-90 transition-opacity cursor-pointer shrink-0"
           >
             iLoveFree
           </button>
-
-          {/* Quick Anchor Links for Smooth Scrolling (Desktop only) */}
-          <nav className="hidden lg:flex items-center gap-1 text-xs text-neutral-400">
-            <button
-              onClick={() => scrollTo('versions-section')}
-              className="px-2.5 py-1.5 rounded-lg text-white hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
-            >
-              <History className="w-3.5 h-3.5 text-neutral-400" />
-              <span>Versions</span>
-            </button>
-            <button
-              onClick={() => scrollTo('extractor-section')}
-              className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              Extractor
-            </button>
-            <button
-              onClick={() => scrollTo('workbench-section')}
-              className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              VS Code Studio
-            </button>
-            <button
-              onClick={() => scrollTo('workspaces-section')}
-              className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              Workspaces
-            </button>
-            <button
-              onClick={() => scrollTo('diagnostics-section')}
-              className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              Diagnostics
-            </button>
-            <button
-              onClick={() => scrollTo('export-section')}
-              className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              Export &amp; ZIP
-            </button>
-          </nav>
         </div>
+
+        {/* Center: All Section Navigation Links Perfectly Centered */}
+        <nav className="hidden lg:flex items-center justify-center gap-1.5 text-xs text-neutral-400 absolute left-1/2 -translate-x-1/2">
+          <button
+            onClick={() => scrollTo('versions-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-1.5"
+          >
+            <History className="w-3.5 h-3.5 text-neutral-400" />
+            <span>Versions</span>
+          </button>
+          <button
+            onClick={() => scrollTo('extractor-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Extractor
+          </button>
+          <button
+            onClick={() => scrollTo('workbench-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            VS Code Studio
+          </button>
+          <button
+            onClick={() => scrollTo('workspaces-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Workspaces
+          </button>
+          <button
+            onClick={() => scrollTo('diagnostics-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Diagnostics
+          </button>
+          <button
+            onClick={() => scrollTo('export-section')}
+            className="px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+          >
+            Export &amp; ZIP
+          </button>
+        </nav>
 
         {/* Right: Actions (Sized gracefully to prevent any wrapping or overflow) */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -166,6 +169,66 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <LogIn className="w-4 h-4 text-neutral-300" />
             <span>{signingIn ? 'Signing in...' : user ? `Continue as ${user.displayName || 'User'}` : 'Sign In with Google'}</span>
           </button>
+        </div>
+      </section>
+
+      {/* 2.5 Demo Video: What Pain Point This Product Solves (Full Width Thumbnail) */}
+      <section id="demo-section" className="w-full max-w-5xl mx-auto px-3 min-[380px]:px-4 sm:px-8 lg:px-16 pt-2 sm:pt-4 pb-10 sm:pb-20 scroll-mt-24">
+        {/* Pain Point Header */}
+        <div className="flex flex-col items-center text-center mb-4 sm:mb-7 px-1">
+          <h2 className="text-xl min-[380px]:text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-snug sm:leading-tight max-w-3xl">
+            Why copying code from AI chat logs is completely broken.
+          </h2>
+
+          <p className="text-[11px] min-[380px]:text-xs sm:text-sm text-neutral-400 font-mono mt-2 sm:mt-3 max-w-xl leading-relaxed">
+            Fragmented code blocks, omitted lines, and manual folder reconstruction. See the real pain point iLoveFree fixes.
+          </p>
+        </div>
+
+        {/* Big Video Container Spanning Width of Div & Filled to Edges */}
+        <div className="w-full relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden border border-[#272732] bg-[#0c0c10] shadow-2xl group">
+          {isVideoPlaying ? (
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/iaFpDD4lfUQ?autoplay=1&rel=0"
+              title="Demo of what pain point iLoveFree solves"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full border-0 absolute inset-0"
+            />
+          ) : (
+            <button
+              onClick={() => setIsVideoPlaying(true)}
+              className="w-full h-full relative block text-left cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              title="Watch the pain point demo video"
+            >
+              {/* Full-width Cover Thumbnail with user's uploaded minions_version_of_me image */}
+              <Image
+                src="/minions_version_of_me.png"
+                alt="Demo thumbnail illustrating the AI transcript reconstruction pain point"
+                fill
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1024px"
+                priority
+                referrerPolicy="no-referrer"
+              />
+
+              {/* Subtle hover overlay for depth without darkening the thumbnail */}
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+
+              {/* Large Centered Play Button - responsive sizing for mobile >350px */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative flex items-center justify-center">
+                  {/* Subtle Glow Ring */}
+                  <div className="absolute w-14 h-14 min-[380px]:w-16 min-[380px]:h-16 sm:w-24 sm:h-24 rounded-full bg-white/10 group-hover:bg-white/25 transition-all duration-300 blur-md group-hover:scale-110" />
+
+                  {/* Play Button Disc */}
+                  <div className="relative w-11 h-11 min-[380px]:w-13 min-[380px]:h-13 sm:w-18 sm:h-18 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_25px_rgba(255,255,255,0.4)] group-hover:scale-110 transition-transform duration-300 ease-out">
+                    <Play className="w-5 h-5 min-[380px]:w-6 min-[380px]:h-6 sm:w-8 sm:h-8 fill-black translate-x-0.5" />
+                  </div>
+                </div>
+              </div>
+            </button>
+          )}
         </div>
       </section>
 

@@ -593,47 +593,49 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
       {/* 2. Main Content Canvas */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#141414] overflow-hidden">
         {/* Top Header Row (border-none to eliminate separating line) */}
-        <header className="h-14 border-none bg-[#141414] px-3 sm:px-6 flex items-center justify-between gap-2 shrink-0">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <header className="h-14 border-none bg-[#141414] px-2 min-[380px]:px-3 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0 shrink">
             {/* Mobile Hamburger menu trigger */}
             <button
               onClick={() => setMobileNavOpen(true)}
-              className="md:hidden p-1.5 text-neutral-400 hover:text-white rounded-md hover:bg-neutral-800 transition-colors shrink-0"
+              className="md:hidden p-1 text-neutral-400 hover:text-white rounded-md hover:bg-neutral-800 transition-colors shrink-0"
               title="Open Navigation"
             >
               <Menu className="w-4 h-4" />
             </button>
 
-            <h1 className="text-xs sm:text-base font-semibold text-white tracking-tight capitalize truncate max-w-28 sm:max-w-sm">
+            <h1 className="text-xs sm:text-base font-semibold text-white tracking-tight capitalize truncate max-w-[55px] min-[360px]:max-w-[75px] min-[380px]:max-w-[110px] sm:max-w-sm">
               {pageTitle}
             </h1>
-            <span className="text-[11px] sm:text-xs text-neutral-500 font-normal shrink-0">
+            <span className="hidden min-[380px]:inline text-[10px] sm:text-xs text-neutral-500 font-normal shrink-0">
               ({filteredProjects.length})
             </span>
           </div>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Upload Folder Button */}
+          {/* Right Action Buttons - Perfectly single-line, non-wrapping on all mobile screens >350px */}
+          <div className="flex items-center gap-1 min-[380px]:gap-1.5 sm:gap-2 shrink-0">
+            {/* Upload Folder Button - Single line guaranteed on mobile >350px */}
             <button
               onClick={() => folderInputRef.current?.click()}
-              className="h-8 px-2 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+              style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              className="h-7.5 min-[380px]:h-8 px-1.5 min-[380px]:px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-[10px] min-[380px]:text-[11px] sm:text-xs font-medium font-sans text-neutral-200 hover:text-white inline-flex flex-row flex-nowrap items-center gap-1 min-[380px]:gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap leading-none select-none"
               title="Upload entire project folder from disk"
             >
-              <FolderUp className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">Upload Folder</span>
+              <FolderUp className="w-3 h-3 min-[380px]:w-3.5 min-[380px]:h-3.5 shrink-0" />
+              <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">Upload Folder</span>
             </button>
 
-            {/* Single primary New Project button */}
+            {/* Single primary New Project button - Single line guaranteed on mobile >350px */}
             <button
               onClick={() => {
                 setTargetWorkspaceForNewProject(selectedWorkspaceId || 'default');
                 setIsCreatingModal(true);
               }}
-              className="h-8 px-2.5 sm:px-3.5 bg-white text-black hover:bg-neutral-200 rounded-md text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-colors cursor-pointer shadow-xs whitespace-nowrap"
+              style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              className="h-7.5 min-[380px]:h-8 px-2 min-[380px]:px-2.5 sm:px-3.5 bg-white text-black hover:bg-neutral-200 rounded-md text-[10px] min-[380px]:text-[11px] sm:text-xs font-semibold font-sans inline-flex flex-row flex-nowrap items-center gap-1 min-[380px]:gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0 whitespace-nowrap leading-none select-none"
             >
-              <Plus className="w-3.5 h-3.5 shrink-0" />
-              <span>New Project</span>
+              <Plus className="w-3 h-3 min-[380px]:w-3.5 min-[380px]:h-3.5 shrink-0" />
+              <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">New Project</span>
             </button>
 
             {onOpenEditorDirectly && (
@@ -645,11 +647,12 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                     onOpenEditorDirectly();
                   }
                 }}
-                className="hidden sm:flex h-8 px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white items-center gap-1.5 transition-colors cursor-pointer"
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                className="hidden sm:inline-flex h-8 px-2.5 sm:px-3 bg-[#1e1e1e] hover:bg-[#292929] border border-[#2d2d2d] rounded-md text-xs text-neutral-300 hover:text-white items-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap leading-none font-sans"
                 title={isMobile ? "Workspace (Desktop Only)" : "Go to Code Workspace"}
               >
                 <Code2 className="w-3.5 h-3.5 shrink-0" />
-                <span>Workspace</span>
+                <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">Workspace</span>
               </button>
             )}
           </div>
@@ -696,23 +699,25 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                   ? 'Create, upload, or move a project into this workspace to organize your work.'
                   : 'Create a new project by pasting your code or uploading a folder.'}
               </p>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-row items-center justify-center gap-2 max-w-full">
                 <button
                   onClick={() => folderInputRef.current?.click()}
-                  className="h-8 px-3 border border-[#333333] hover:border-neutral-500 bg-[#1e1e1e] text-neutral-200 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                  style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                  className="h-8 px-2.5 sm:px-3 border border-[#333333] hover:border-neutral-500 bg-[#1e1e1e] text-neutral-200 hover:text-white rounded-md text-[11px] sm:text-xs font-medium font-sans inline-flex flex-row flex-nowrap items-center gap-1.5 transition-colors cursor-pointer shrink-0 whitespace-nowrap leading-none select-none"
                 >
-                  <FolderUp className="w-3.5 h-3.5" />
-                  <span>Upload Folder</span>
+                  <FolderUp className="w-3.5 h-3.5 shrink-0" />
+                  <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">Upload Folder</span>
                 </button>
                 <button
                   onClick={() => {
                     setTargetWorkspaceForNewProject(selectedWorkspaceId || 'default');
                     setIsCreatingModal(true);
                   }}
-                  className="h-8 px-4 bg-white text-black hover:bg-neutral-200 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                  className="h-8 px-3 sm:px-3.5 bg-white text-black hover:bg-neutral-200 rounded-md text-[11px] sm:text-xs font-semibold font-sans inline-flex flex-row flex-nowrap items-center gap-1.5 transition-colors cursor-pointer shadow-xs shrink-0 whitespace-nowrap leading-none select-none"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>New Project</span>
+                  <Plus className="w-3.5 h-3.5 shrink-0" />
+                  <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">New Project</span>
                 </button>
               </div>
             </div>
@@ -940,10 +945,11 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
             </div>
 
             {/* Creation tabs: Paste Transcript / Upload Folder / Upload Files */}
-            <div className="px-4 pt-3 border-b border-[#262626] flex items-center gap-4 bg-[#161616]">
+            <div className="px-3 sm:px-4 pt-3 border-b border-[#262626] flex items-center gap-3 sm:gap-4 bg-[#161616] overflow-x-auto no-scrollbar flex-nowrap">
               <button
                 onClick={() => setCreateModeTab('transcript')}
-                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer ${
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                   createModeTab === 'transcript'
                     ? 'border-white text-white'
                     : 'border-transparent text-neutral-400 hover:text-white'
@@ -956,28 +962,30 @@ export const FigmaProjectsDashboard: React.FC<FigmaProjectsDashboardProps> = ({
                   setCreateModeTab('folder');
                   folderInputRef.current?.click();
                 }}
-                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer flex items-center gap-1.5 ${
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
                   createModeTab === 'folder'
                     ? 'border-white text-white'
                     : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
-                <FolderUp className="w-3.5 h-3.5" />
-                <span>Upload Folder</span>
+                <FolderUp className="w-3.5 h-3.5 shrink-0" />
+                <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">Upload Folder</span>
               </button>
               <button
                 onClick={() => {
                   setCreateModeTab('files');
                   filesInputRef.current?.click();
                 }}
-                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer flex items-center gap-1.5 ${
+                style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                className={`pb-2 border-b-2 font-medium text-xs transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap ${
                   createModeTab === 'files'
                     ? 'border-white text-white'
                     : 'border-transparent text-neutral-400 hover:text-white'
                 }`}
               >
-                <FileUp className="w-3.5 h-3.5" />
-                <span>Upload Files</span>
+                <FileUp className="w-3.5 h-3.5 shrink-0" />
+                <span style={{ whiteSpace: 'nowrap' }} className="whitespace-nowrap">Upload Files</span>
               </button>
             </div>
 
