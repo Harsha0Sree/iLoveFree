@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/src/context/AuthContext.tsx';
 import {
@@ -27,6 +27,8 @@ import {
   Sliders,
   ChevronDown,
   Play,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -39,7 +41,85 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onSignInSuccess,
 }) => {
   const { user, signInWithGoogle, signingIn } = useAuth();
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const isVideoPlayingRef = useRef(false);
+
+  useEffect(() => {
+    isVideoPlayingRef.current = isVideoPlaying;
+  }, [isVideoPlaying]);
+
+  const sendIframeCommand = useCallback((command: string, args: unknown[] = []) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        JSON.stringify({
+          event: 'command',
+          func: command,
+          args,
+        }),
+        '*'
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    const target = videoContainerRef.current;
+    if (!target || typeof IntersectionObserver === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+
+        // When scrolled across that section:
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
+          if (!isVideoPlayingRef.current) {
+            setIsVideoPlaying(true);
+          } else {
+            sendIframeCommand('playVideo');
+          }
+        } else if (!entry.isIntersecting || entry.intersectionRatio < 0.1) {
+          // When scrolled past that section:
+          if (isVideoPlayingRef.current) {
+            sendIframeCommand('pauseVideo');
+          }
+        }
+      },
+      {
+        threshold: [0, 0.1, 0.25, 0.5],
+      }
+    );
+
+    observer.observe(target);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [sendIframeCommand]);
+
+  const handleManualPlay = () => {
+    setIsVideoPlaying(true);
+    setIsMuted(false);
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isMuted) {
+      sendIframeCommand('unMute');
+      setIsMuted(false);
+    } else {
+      sendIframeCommand('mute');
+      setIsMuted(true);
+    }
+  };
+
+  const handleIframeLoad = () => {
+    if (!isMuted) {
+      sendIframeCommand('unMute');
+    }
+  };
 
   const handleSignIn = async () => {
     if (user) {
@@ -186,48 +266,77 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
 
         {/* Big Video Container Spanning Width of Div & Filled to Edges */}
-        <div className="w-full relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden border border-[#272732] bg-[#0c0c10] shadow-2xl group">
-          {isVideoPlaying ? (
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/iaFpDD4lfUQ?autoplay=1&rel=0"
-              title="Demo of what pain point iLoveFree solves"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="w-full h-full border-0 absolute inset-0"
-            />
-          ) : (
+        <div
+          ref={videoContainerRef}
+          className="w-full relative aspect-video rounded-xl sm:rounded-2xl overflow-hidden border border-[#272732] bg-[#0c0c10] shadow-2xl group"
+        >
+          {/* Base Thumbnail (underneath iframe while loading or before playback) */}
+          <Image
+            src="/minions_version_of_me.png"
+            alt="Demo thumbnail illustrating the AI transcript reconstruction pain point"
+            fill
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.01]"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1024px"
+            priority
+            referrerPolicy="no-referrer"
+          />
+
+          {!isVideoPlaying ? (
             <button
-              onClick={() => setIsVideoPlaying(true)}
-              className="w-full h-full relative block text-left cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              onClick={handleManualPlay}
+              className="w-full h-full relative block text-left cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-white z-10"
               title="Watch the pain point demo video"
             >
-              {/* Full-width Cover Thumbnail with user's uploaded minions_version_of_me image */}
-              <Image
-                src="/minions_version_of_me.png"
-                alt="Demo thumbnail illustrating the AI transcript reconstruction pain point"
-                fill
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.01]"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1024px"
-                priority
-                referrerPolicy="no-referrer"
-              />
-
-              {/* Subtle hover overlay for depth without darkening the thumbnail */}
+              {/* Subtle hover overlay for depth */}
               <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
 
-              {/* Large Centered Play Button - responsive sizing for mobile >350px */}
-              <div className="absolute inset-0 flex items-center justify-center">
+              {/* Play Button in Bottom-Right Corner of Thumbnail */}
+              <div className="absolute bottom-2.5 right-2.5 min-[380px]:bottom-3 min-[380px]:right-3 sm:bottom-6 sm:right-6 z-10">
                 <div className="relative flex items-center justify-center">
                   {/* Subtle Glow Ring */}
-                  <div className="absolute w-14 h-14 min-[380px]:w-16 min-[380px]:h-16 sm:w-24 sm:h-24 rounded-full bg-white/10 group-hover:bg-white/25 transition-all duration-300 blur-md group-hover:scale-110" />
+                  <div className="absolute w-12 h-12 min-[380px]:w-14 min-[380px]:h-14 sm:w-20 sm:h-20 rounded-full bg-white/15 group-hover:bg-white/30 transition-all duration-300 blur-md group-hover:scale-110" />
 
                   {/* Play Button Disc */}
-                  <div className="relative w-11 h-11 min-[380px]:w-13 min-[380px]:h-13 sm:w-18 sm:h-18 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_25px_rgba(255,255,255,0.4)] group-hover:scale-110 transition-transform duration-300 ease-out">
-                    <Play className="w-5 h-5 min-[380px]:w-6 min-[380px]:h-6 sm:w-8 sm:h-8 fill-black translate-x-0.5" />
+                  <div className="relative w-9 h-9 min-[380px]:w-11 min-[380px]:h-11 sm:w-16 sm:h-16 rounded-full bg-white text-black flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.5),0_0_25px_rgba(255,255,255,0.35)] group-hover:scale-110 transition-transform duration-300 ease-out">
+                    <Play className="w-4 h-4 min-[380px]:w-5 min-[380px]:h-5 sm:w-7 sm:h-7 fill-black translate-x-0.5" />
                   </div>
                 </div>
               </div>
             </button>
+          ) : (
+            <>
+              {/* Autoplaying / Interactive YouTube Iframe with postMessage API */}
+              <iframe
+                ref={iframeRef}
+                id="demo-youtube-player"
+                src={`https://www.youtube-nocookie.com/embed/iaFpDD4lfUQ?enablejsapi=1&autoplay=1&mute=${isMuted ? '1' : '0'}&playsinline=1&rel=0`}
+                title="Demo of what pain point iLoveFree solves"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                onLoad={handleIframeLoad}
+                className="w-full h-full border-0 absolute inset-0 z-10"
+              />
+
+              {/* Quick Audio Mute / Unmute Button Overlay */}
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="absolute top-2.5 right-2.5 min-[380px]:top-3 min-[380px]:right-3 sm:top-4 sm:right-4 z-20 px-2.5 py-1.5 rounded-lg bg-black/75 hover:bg-black/90 text-white text-[11px] sm:text-xs font-sans backdrop-blur-md border border-white/20 flex items-center gap-1.5 transition-all shadow-lg cursor-pointer"
+                title={isMuted ? 'Click to unmute sound' : 'Click to mute sound'}
+              >
+                {isMuted ? (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-neutral-300" />
+                    <span>Unmute</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-white" />
+                    <span>Mute</span>
+                  </>
+                )}
+              </button>
+            </>
           )}
         </div>
       </section>
