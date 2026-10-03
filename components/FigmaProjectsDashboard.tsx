@@ -27,7 +27,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { useAuth } from '@/src/context/AuthContext.tsx';
+import { useAuth } from '@/src/context/AuthContext';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { processUploadedFiles } from '@/lib/folder-upload';
 

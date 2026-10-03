@@ -13,7 +13,7 @@ import {
   mergePatchIntoCheckpoint,
 } from '@/lib/checkpoints';
 import { useResizable } from '@/hooks/use-resizable';
-import { useAuth } from '@/src/context/AuthContext.tsx';
+import { useAuth } from '@/src/context/AuthContext';
 import { VSCodeTitleBar } from '@/components/VSCodeTitleBar';
 import { VSCodeActivityBar, ActivityTab } from '@/components/VSCodeActivityBar';
 import { VSCodeStatusBar } from '@/components/VSCodeStatusBar';

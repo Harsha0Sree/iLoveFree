@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { useAuth } from '@/src/context/AuthContext.tsx';
+import { useAuth } from '@/src/context/AuthContext';
 import {
   ArrowRight,
   LogIn,

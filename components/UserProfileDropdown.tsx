@@ -8,7 +8,7 @@ import {
   LogOut,
   LogIn,
 } from 'lucide-react';
-import { useAuth } from '@/src/context/AuthContext.tsx';
+import { useAuth } from '@/src/context/AuthContext';
 
 interface UserProfileDropdownProps {
   isOpen: boolean;

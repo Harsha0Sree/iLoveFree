@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { adminAuth } from './firebase-admin.ts';
+import { adminAuth } from './firebase-admin';
 
 export async function verifyUserToken(req: NextRequest) {
   const authHeader = req.headers.get('authorization');

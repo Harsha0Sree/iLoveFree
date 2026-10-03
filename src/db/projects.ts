@@ -1,5 +1,5 @@
-import { db } from './index.ts';
-import { projects, users } from './schema.ts';
+import { db } from './index';
+import { projects, users } from './schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface ProjectStats {

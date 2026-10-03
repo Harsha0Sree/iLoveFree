@@ -18,7 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { useAuth } from '@/src/context/AuthContext.tsx';
+import { useAuth } from '@/src/context/AuthContext';
 import { UserProfileDropdown } from './UserProfileDropdown';
 
 interface VSCodeTitleBarProps {

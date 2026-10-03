@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyUserToken } from '@/src/lib/auth-helper.ts';
-import { getUserProjects, createProject } from '@/src/db/projects.ts';
+import { verifyUserToken } from '@/src/lib/auth-helper';
+import { getUserProjects, createProject } from '@/src/db/projects';
 
 export async function GET(req: NextRequest) {
   try {
