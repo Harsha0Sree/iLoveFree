@@ -1,0 +1,6 @@
+{
+  "name": "RepoExtract - Deterministic Project Extractor & ZIP Packer",
+  "description": "Deterministic parser and ZIP packager for markdown and multi-file code exports with file tree auditing and zero LLM hallucination.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
